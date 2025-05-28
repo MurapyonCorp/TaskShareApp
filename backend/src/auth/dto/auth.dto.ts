@@ -19,4 +19,7 @@ export class AuthDto {
   @IsNotEmpty({ message: '入力必須です' })
   @Match('password', { message: 'パスワードが一致していません' })
   confirmPassword: string;
+
+  @IsString()
+  introduction: string;
 }
