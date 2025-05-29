@@ -16,6 +16,7 @@ export class AuthService {
     private readonly config: ConfigService,
   ) {}
 
+  // サインアップ
   async signUp(dto: AuthDto) {
     const hashed = await bcrypt.hash(dto.password, 12);
     try {
