@@ -15,6 +15,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
   ) {}
+
   async signUp(dto: AuthDto) {
     const hashed = await bcrypt.hash(dto.password, 12);
     try {
@@ -29,7 +30,9 @@ export class AuthService {
     } catch (error) {
       if (error.code === '23505') {
         // PostgreSQLのユニーク制約違反
-        throw new ForbiddenException('このメールアドレスは既に登録されています');
+        throw new ForbiddenException(
+          'このメールアドレスは既に登録されています',
+        );
       }
       throw error;
     }
