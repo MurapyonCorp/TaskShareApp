@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AuthDto } from './dto/auth.dto';
+import { Jwt } from 'src/types/auth';
 
 @Injectable()
 export class AuthService {
@@ -37,5 +38,46 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  // ログイン
+  async login(dto: AuthDto): Promise<Jwt> {
+    const user = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('メールアドレスまたはパスワードが違います');
+    }
+
+    const isValid = await bcrypt.compare(dto.password, user.hashedPassword);
+
+    if (!isValid) {
+      throw new ForbiddenException('メールアドレスまたはパスワードが違います');
+    }
+
+    return this.generateJwt(user.id, user.email);
+  }
+
+  async getMe(userPayload: any): Promise<User> {
+    const userId = userPayload.sub;
+    return this.userRepo.findOne({
+      where: { id: userId },
+      select: ['id', "name", 'email', 'introduction'], // 必要な情報だけ返すように
+    });
+  }
+
+  private async generateJwt(userId: number, email: string): Promise<Jwt> {
+    const payload = { sub: userId, email };
+    const secret = this.config.get('JWT_SECRET');
+
+    const token = await this.jwt.signAsync(payload, {
+      expiresIn: '5m',
+      secret,
+    });
+
+    return {
+      accessToken: token,
+    };
   }
 }
