@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { Match } from './match.decorator';
 
 export class AuthDto {
@@ -20,6 +20,7 @@ export class AuthDto {
   @Match('password', { message: 'パスワードが一致していません' })
   confirmPassword: string;
 
+  @IsOptional()
   @IsString()
   introduction: string;
 }
