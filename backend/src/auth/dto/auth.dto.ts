@@ -22,5 +22,5 @@ export class AuthDto {
 
   @IsOptional()
   @IsString()
-  introduction: string;
+  introduction?: string;
 }

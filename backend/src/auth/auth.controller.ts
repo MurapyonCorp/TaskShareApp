@@ -43,6 +43,8 @@ export class AuthController {
     return this.authService.getMe(req.user);
   }
 
+  
+
   @HttpCode(HttpStatus.OK)
   @Delete('/logout')
   logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
