@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -7,6 +11,7 @@ import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { AuthDto } from './dto/auth.dto';
 import { Jwt } from 'src/types/auth';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 @Injectable()
 export class AuthService {
@@ -59,12 +64,26 @@ export class AuthService {
     return this.generateJwt(user.id, user.email);
   }
 
+  // ログインユーザー取得
   async getMe(userPayload: any): Promise<User> {
     const userId = userPayload.sub;
     return this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', "name", 'email', 'introduction'], // 必要な情報だけ返すように
+      select: ['id', 'name', 'email', 'introduction'], // 必要な情報だけ返すように
     });
+  }
+
+  // ユーザー情報更新
+  async updateMe(userId: number, dto: UpdateMeDto): Promise<User> {
+    const user = await this.userRepo.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new NotFoundException('そのユーザーは登録されていません');
+    }
+
+    Object.assign(user, dto);
+
+    return await this.userRepo.save(user);
   }
 
   private async generateJwt(userId: number, email: string): Promise<Jwt> {
