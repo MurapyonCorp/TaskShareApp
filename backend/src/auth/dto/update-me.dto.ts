@@ -15,6 +15,6 @@ export class UpdateMeDto {
   password?: string;
 
   @IsOptional()
-  @IsString()accessor
+  @IsString()
   introduction?: string;
 }
