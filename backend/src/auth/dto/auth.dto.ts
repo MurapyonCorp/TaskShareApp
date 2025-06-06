@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
 import { Match } from './match.decorator';
 
+// POST auth/signupで送信するリクエストボディのバリデーション用DTO。
 export class AuthDto {
   @IsString()
   @IsNotEmpty({ message: '入力必須です' })
