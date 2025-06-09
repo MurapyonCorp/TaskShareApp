@@ -12,12 +12,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthDto } from './dto/auth.dto';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { User } from 'src/users/entities/user.entity';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { SignupDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
 
 // NestJSの@Controllerデコレーターで、URLのベースパスを 'auth' に設定
 @Controller('auth')
@@ -28,7 +29,7 @@ export class AuthController {
   // ユーザー登録（サインアップ）エンドポイント
   // POST /auth/signup にマッピングされる
   @Post('signup')
-  signUp(@Body() dto: AuthDto) {
+  signUp(@Body() dto: SignupDto) {
     // リクエストボディをDTOとして受け取り、authServiceのsignUpメソッドに渡す
     return this.authService.signUp(dto);
   }
@@ -37,7 +38,7 @@ export class AuthController {
   // POST /auth/login にマッピング、レスポンスステータスは常に200（OK）
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() dto: AuthDto, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() dto: LoginDto, @Res({ passthrough: true }) res: Response) {
     // DTO（email/password）を受け取ってJWTを取得
     const jwt = await this.authService.login(dto);
 
