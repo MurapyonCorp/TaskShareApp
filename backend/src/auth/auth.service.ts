@@ -9,7 +9,6 @@ import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
-import { AuthDto } from './dto/auth.dto';
 import { Jwt } from 'src/types/auth';
 import { UpdateMeDto } from './dto/update-me.dto';
 
