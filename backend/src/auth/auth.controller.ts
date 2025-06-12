@@ -15,7 +15,7 @@ import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
-import { User } from 'src/users/entities/user.entity';
+import { UsersEntity } from 'src/users/entities/user.entity';
 import { UpdateMeDto } from './dto/update-me.dto';
 import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
@@ -64,7 +64,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Patch('me')
   updateMe(
-    @GetUser() user: User, // カスタムデコレーターでログインユーザーを取得
+    @GetUser() user: UsersEntity, // カスタムデコレーターでログインユーザーを取得
     @Body() dto: UpdateMeDto, // 更新内容（nameやemailなど）をDTOとして受け取る
   ) {
     // ユーザーIDとDTOを渡して更新処理を実行
@@ -91,7 +91,7 @@ export class AuthController {
   @Delete('me')
   // カスタムデコレーターで、ログインユーザーの情報を user として取得。中身には user.id, user.email などが入っている
   async removeMe(
-    @GetUser() user: User,
+    @GetUser() user: UsersEntity,
     // res: Response はレスポンスオブジェクトで、@Res({ passthrough: true }) によって NestJSに制御を戻しながらもレスポンス操作できるようにしている
     @Res({ passthrough: true }) res: Response,
   ) {

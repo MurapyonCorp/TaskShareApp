@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { User } from './entities/user.entity';
+import { UsersEntity } from './entities/user.entity';
 
 @Controller('users')
 export class UsersController {
@@ -8,7 +8,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  async findAll(): Promise<User[]> {
+  async findAll(): Promise<UsersEntity[]> {
     // this.usersService.findAll() を呼び出し、DB内の全ユーザー情報を取得して返す。
     // 戻り値は User[] 型のPromise（非同期でユーザー配列を返す）。
     return await this.usersService.findAll();

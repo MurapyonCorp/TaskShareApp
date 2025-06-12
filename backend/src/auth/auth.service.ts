@@ -7,24 +7,26 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { User } from 'src/users/entities/user.entity';
+import { UsersEntity } from 'src/users/entities/user.entity';
 import { Repository } from 'typeorm';
 import { Jwt } from 'src/types/auth';
 import { UpdateMeDto } from './dto/update-me.dto';
+import { SignupDto } from './dto/signup.dto';
+import { LoginDto } from './dto/login.dto';
 
 // NestJSの依存性注入可能なクラスとしてマーク（サービスなどに使う）
 @Injectable()
 export class AuthService {
   // コンストラクタで必要な依存関係を注入する
   constructor(
-    @InjectRepository(User) // TypeORMのリポジトリをUserエンティティに対して注入
-    private readonly userRepo: Repository<User>,
+    @InjectRepository(UsersEntity) // TypeORMのリポジトリをUserエンティティに対して注入
+    private readonly userRepo: Repository<UsersEntity>,
     private readonly jwt: JwtService, // JWTトークン生成のためのサービス
     private readonly config: ConfigService, // 環境変数などの設定取得用
   ) {}
 
   // ユーザー登録（サインアップ）処理
-  async signUp(dto: AuthDto) {
+  async signUp(dto: SignupDto) {
     // パスワードをハッシュ化（セキュリティ対策）
     const hashed = await bcrypt.hash(dto.password, 12);
     try {
@@ -52,7 +54,7 @@ export class AuthService {
   }
 
   // ログイン処理（トークンを返す）
-  async login(dto: AuthDto): Promise<Jwt> {
+  async login(dto: LoginDto): Promise<Jwt> {
     // メールアドレスからユーザーを検索
     const user = await this.userRepo.findOne({
       where: { email: dto.email },
@@ -76,7 +78,7 @@ export class AuthService {
   }
 
   // ログイン中のユーザー情報を取得
-  async getMe(userPayload: any): Promise<User> {
+  async getMe(userPayload: any): Promise<UsersEntity> {
     const userId = userPayload.sub; // JWTのsub（ユーザーID）を取得
 
     // 必要なフィールドだけ選択して取得（セキュリティ＆効率）
@@ -87,7 +89,7 @@ export class AuthService {
   }
 
   // 自分のユーザー情報を更新
-  async updateMe(userId: number, dto: UpdateMeDto): Promise<User> {
+  async updateMe(userId: number, dto: UpdateMeDto): Promise<UsersEntity> {
     // 対象ユーザーをDBから取得
     const user = await this.userRepo.findOneBy({ id: userId });
 
