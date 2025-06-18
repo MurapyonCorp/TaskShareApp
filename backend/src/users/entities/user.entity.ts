@@ -24,7 +24,10 @@ export class UsersEntity extends BaseEntity {
   image_id: string;
 
   @Column('text', { comment: '自己紹介' })
-  introoduction: string;
+  introduction: string;
+
+  @Column({ name: 'hashed_password', comment: 'パスワード' })
+  hashedPassword: string;
 
   @CreateDateColumn({ comment: '作成日時' })
   created_at: Date;

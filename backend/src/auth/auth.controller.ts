@@ -54,9 +54,9 @@ export class AuthController {
   // 現在ログイン中のユーザー情報取得
   // GET /auth/me にマッピング
   @Get('me')
-  getMe(@Req() req: Request) {
+  getMe(@GetUser() user: UsersEntity) {
     // リクエストオブジェクトに含まれているユーザー情報をサービスに渡す
-    return this.authService.getMe(req.user);
+    return this.authService.getMe(user);
   }
 
   // 自身のプロフィール情報を更新

@@ -82,10 +82,15 @@ export class AuthService {
     const userId = userPayload.sub; // JWTのsub（ユーザーID）を取得
 
     // 必要なフィールドだけ選択して取得（セキュリティ＆効率）
-    return this.userRepo.findOne({
+    const user = await this.userRepo.findOne({
       where: { id: userId },
-      select: ['id', 'name', 'email', 'introduction'],
+      select: ['id', 'name', 'email', 'hashedPassword', 'introduction'],
     });
+
+    if (!user) {
+      throw new NotFoundException('ユーザーが見つかりません');
+    }
+    return user;
   }
 
   // 自分のユーザー情報を更新
