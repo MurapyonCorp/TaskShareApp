@@ -23,11 +23,11 @@ export class User extends BaseEntity {
   @Column('uuid', {
     name: 'image_id',
     nullable: true,
-    comment: 'プロフィール画像'
+    comment: 'プロフィール画像',
   })
   imageId: string | null;
 
-  @Column('text', { comment: '自己紹介' })
+  @Column('text', { default: '', comment: '自己紹介' })
   introduction: string;
 
   @Column('text', {
