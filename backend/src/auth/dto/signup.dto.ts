@@ -1,5 +1,11 @@
-import { IsString, IsNotEmpty, IsEmail, MinLength, IsOptional } from "class-validator";
-import { Match } from "src/common/decorators/match.decorator";
+import {
+  IsString,
+  IsNotEmpty,
+  IsEmail,
+  MinLength,
+  IsOptional,
+} from 'class-validator';
+import { Match } from 'src/common/decorators/match.decorator';
 
 export class SignupDto {
   @IsString()
@@ -12,7 +18,7 @@ export class SignupDto {
 
   @IsNotEmpty()
   @IsString()
-  imageId: string;
+  imageId: string | null;
 
   @IsString()
   @IsNotEmpty({ message: '入力必須です' })
@@ -26,5 +32,5 @@ export class SignupDto {
 
   @IsOptional()
   @IsString()
-  introduction?: string;
+  introduction: string;
 }
