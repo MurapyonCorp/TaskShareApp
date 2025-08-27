@@ -1,26 +1,37 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
+import { Repository } from 'typeorm';
+import { SignupDto } from './dto/signup.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(
+    @InjectRepository(User)
+    private readonly userRepo: Repository<User>,
+  ) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async signUp(dto: SignupDto) {
+    const hashed = await bcrypt.hash(dto.password, 12);
+    try {
+      const user = this.userRepo.create({
+        name: dto.name,
+        email: dto.email,
+        imageId: dto.imageId,
+        hashedPassword: hashed,
+        introduction: dto.introduction,
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+      await this.userRepo.save(user);
+      return user;
+    } catch (error) {
+      if (error.code === '23505') {
+        throw new ForbiddenException(
+          'このメールアドレスは既に登録されています',
+        );
+      }
+      throw error;
+    }
   }
 }
