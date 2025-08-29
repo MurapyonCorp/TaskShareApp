@@ -7,8 +7,15 @@ import * as bcrypt from 'bcrypt';
 import { Repository } from 'typeorm';
 import { SignupDto } from './dto/signup.dto';
 
+// --- 準備 (beforeEach の方針) ---
+// - bcrypt をモック化する（hash を jest.fn() に差し替え）
+// - AuthService をテスト対象として利用する
+// - UserRepository をモックして DI する
+// - TestingModule を作成し、AuthController と AuthService を登録
+// - service (AuthService のインスタンス) を取り出す
+
 jest.mock('bcrypt', () => ({
-  hash: jest.fn(),
+  hash: jest.fn(), // bcrypt.hash をモック化
 }));
 
 describe('AuthService', () => {
@@ -16,21 +23,22 @@ describe('AuthService', () => {
   let userRepo: jest.Mocked<Repository<User>>;
 
   beforeEach(async () => {
-    // 各依存サービスのモック定義
+    // 各依存サービスのモック定義（Repository の代替実装）
     userRepo = {
-      create: jest.fn(),
-      save: jest.fn(),
+      create: jest.fn(), // User エンティティ作成のモック
+      save: jest.fn(), // User 保存処理のモック
     } as any;
 
     // テスト用のモジュールを作成する
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [AuthController],
+      controllers: [AuthController], // AuthController をテスト対象に含める
       providers: [
-        AuthService,
-        { provide: getRepositoryToken(User), useValue: userRepo },
+        AuthService, // テスト対象のサービス
+        { provide: getRepositoryToken(User), useValue: userRepo }, // UserRepository をモックで差し替え
       ],
     }).compile();
 
+    // AuthService のインスタンスを取得
     service = module.get<AuthService>(AuthService);
   });
 
