@@ -52,29 +52,30 @@ describe('AuthService', () => {
   tomorrow.setDate(now.getDate() + 1);
 
   describe('signUp()', () => {
+    // - 共通で使う dto を用意（name, email, password, confirmPassword, imageId, introduction）
+    const dto: SignupDto = {
+      name: 'dummy',
+      email: 'test@dummy.com',
+      imageId: null,
+      password: 'dummy123',
+      confirmPassword: 'dummy123',
+      introduction: 'Hello',
+    };
+
+    const createdUser = {
+      id: 1,
+      name: dto.name,
+      email: dto.email,
+      imageId: dto.imageId,
+      introduction: dto.introduction,
+      hashedPassword: 'hashed',
+      imageUrl: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
     // --- 正常系テスト ---
     it('正常にユーザー登録ができ、登録したユーザーを返す', async () => {
-      const dto: SignupDto = {
-        name: 'dummy',
-        email: 'test@dummy.com',
-        imageId: null,
-        password: 'dummy123',
-        confirmPassword: 'dummy123',
-        introduction: 'Hello',
-      };
-
-      const createdUser = {
-        id: 1,
-        name: dto.name,
-        email: dto.email,
-        imageId: dto.imageId,
-        introduction: dto.introduction,
-        hashedPassword: 'hashed',
-        imageUrl: null,
-        createdAt: now,
-        updatedAt: now,
-      };
-
       // 1. bcrypt.hash が呼ばれていることを spy で確認する（jest.mockを使ってモックしているのでspyOnは利用しない）
       const jestHash = (bcrypt.hash as jest.Mock).mockResolvedValue('hashed');
 
@@ -129,27 +130,6 @@ describe('AuthService', () => {
 
     // --- 異常系テスト（ユニーク制約違反） ---
     it('メールアドレスが重複しており、登録できないかつエラーメッセージが表示される', async () => {
-      const dto: SignupDto = {
-        name: 'duplicate',
-        email: 'duplicate@dummy.com',
-        imageId: null,
-        password: 'dupli123',
-        confirmPassword: 'dupli123',
-        introduction: 'Oh, no',
-      };
-
-      const createdUser = {
-        id: 1,
-        name: dto.name,
-        email: dto.email,
-        imageId: dto.imageId,
-        introduction: dto.introduction,
-        hashedPassword: 'hashed',
-        imageUrl: null,
-        createdAt: now,
-        updatedAt: now,
-      };
-
       (userRepo.create as jest.Mock).mockReturnValue(createdUser);
 
       // 1. userRepo.save が error.code = '23505' を投げるように mock する
