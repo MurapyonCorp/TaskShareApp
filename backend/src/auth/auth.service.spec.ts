@@ -56,7 +56,7 @@ describe('AuthService', () => {
     const dto: SignupDto = {
       name: 'dummy',
       email: 'test@dummy.com',
-      imageId: null,
+      imageId: '5d78f017-ef80-fbbf-3aad-f3f5d6c10043',
       password: 'dummy123',
       confirmPassword: 'dummy123',
       introduction: 'Hello',
