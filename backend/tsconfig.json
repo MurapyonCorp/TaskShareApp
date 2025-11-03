@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -11,6 +11,9 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
+    "moduleDetection": "force", // ESM判定を強制
+    "useDefineForClassFields": false, // TypeORM のデコレータ運用が安定
+    "types": ["node"], // Nodeの型を常時有効に
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
@@ -21,5 +24,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
+  // Jest 実行時にビルド済み dist/ を拾ってしまう事故を防ぐ
+  "include": ["src/**/*", "config/**/*.ts", "test/**/*"],
+  "exclude": ["dist", "build", "node_modules"]
 }
