@@ -26,6 +26,6 @@
     "noFallthroughCasesInSwitch": false
   },
   // Jest 実行時にビルド済み dist/ を拾ってしまう事故を防ぐ
-  "include": ["src/**/*", "test/**/*"],
+  "include": ["src/**/*", "config/**/*.ts", "test/**/*"],
   "exclude": ["dist", "build", "node_modules"]
 }
