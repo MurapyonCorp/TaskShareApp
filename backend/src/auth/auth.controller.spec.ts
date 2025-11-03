@@ -1,10 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { SignupDto } from './dto/signup.dto';
+import { AuthController } from './auth.controller.js';
+import { AuthService } from './auth.service.js';
+import { SignupDto } from './dto/signup.dto.js';
 import { ForbiddenException, RequestMethod } from '@nestjs/common';
 import 'reflect-metadata';
-import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
+import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants.js';
+import { faker } from '@faker-js/faker';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  jest,
+} from '@jest/globals';
+import { User } from '../users/entities/user.entity.js';
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -44,19 +54,21 @@ describe('AuthController', () => {
   const tomorrow = new Date(now);
   tomorrow.setDate(now.getDate() + 1);
 
+  const password = faker.internet.password();
+
   describe("@Post('signup')", () => {
     // - 共通で使う dto を用意（name, email, password, confirmPassword, imageId, introduction）
     const dto: SignupDto = {
-      name: 'dummy',
-      email: 'test@dummy.com',
-      password: 'dummy123',
-      confirmPassword: 'dummy123',
-      imageId: '5d78f017-ef80-fbbf-3aad-f3f5d6c10043',
-      introduction: 'Hello, Elden',
+      name: faker.person.fullName(),
+      email: faker.internet.email(),
+      password: password,
+      confirmPassword: password,
+      imageId: faker.string.uuid(),
+      introduction: faker.lorem.sentence(),
     };
 
     // - 共通で使う user を用意（id, email, ...）
-    const user = {
+    const expected: Partial<User> = {
       id: 1,
       name: dto.name,
       email: dto.email,
@@ -68,6 +80,8 @@ describe('AuthController', () => {
       updatedAt: now,
     };
 
+    const user: User = Object.assign(new User(), expected);
+
     // --- 正常系テスト ---
     it('Controllerが正しくServiceを呼び、正しい戻り値を返すか', async () => {
       // 3) dto の改変をしないこと（必要なら）
@@ -76,21 +90,21 @@ describe('AuthController', () => {
 
       // 1) service.signUp の戻り値（例: user or { id, email, ... }）をそのまま返すこと
       //    - mockResolvedValueOnce した値と toEqual / toMatchObject で一致確認
-      (service.signUp as jest.Mock).mockResolvedValueOnce(user);
+      service.signUp.mockResolvedValueOnce(user);
       const result = await controller.signUp(dto);
-      expect(result).toEqual(expect.objectContaining(user));
+      expect(result).toMatchObject(expected);
 
       // 2) controller.signUp(dto) を呼ぶと、service.signUp が一度だけ呼ばれること
       //    - 引数が dto（そのままの参照 or 値）であることを toHaveBeenCalledWith で確認
       //    - 呼び出し回数 toHaveBeenCalledTimes(1)
       expect(service.signUp).toHaveBeenCalledWith(
         expect.objectContaining({
-          name: 'dummy',
-          email: 'test@dummy.com',
-          password: 'dummy123',
-          confirmPassword: 'dummy123',
-          imageId: '5d78f017-ef80-fbbf-3aad-f3f5d6c10043',
-          introduction: 'Hello, Elden',
+          name: dto.name,
+          email: dto.email,
+          password: dto.password,
+          confirmPassword: dto.confirmPassword,
+          imageId: dto.imageId,
+          introduction: dto.introduction,
         }),
       );
       expect(service.signUp).toHaveBeenCalledTimes(1);
@@ -105,7 +119,7 @@ describe('AuthController', () => {
       // 4) service.signUp が ForbiddenException を投げた場合
       //    - controller.signUp も同じ例外を reject すること（rejects.toThrow(ForbiddenException)）
       //    - メッセージが一致するならメッセージも確認
-      (service.signUp as jest.Mock).mockRejectedValue(
+      service.signUp.mockRejectedValue(
         new ForbiddenException('このメールアドレスは既に登録されています'),
       );
       await expect(controller.signUp(dto)).rejects.toThrow(
@@ -119,7 +133,7 @@ describe('AuthController', () => {
     it('service.signUp が汎用的な Error を投げた場合、 controller.signUp も同じエラーをそのまま投げるか', async () => {
       // 5) service.signUp が汎用的な Error を投げた場合
       //    - controller.signUp も同じエラーをそのまま投げること（変換や握りつぶしをしない）
-      (service.signUp as jest.Mock).mockRejectedValue(new Error('DB error'));
+      service.signUp.mockRejectedValue(new Error('DB error'));
       await expect(controller.signUp(dto)).rejects.toThrow('DB error');
       // 6) 異常時に余計な呼び出しが発生していないこと（必要なら）
       //    - 失敗後に他のメソッドが呼ばれていないことを確認（今回は signUp だけなので回数確認で十分）
@@ -129,21 +143,17 @@ describe('AuthController', () => {
     // 追加観点
     // 7) 返却 shape の柔軟性（toMatchObject で主要項目だけ確認）
     it('Service が追加フィールドを返しても Controller は素通しで返すか', async () => {
-      (service.signUp as jest.Mock).mockResolvedValue({
-        id: 1,
-        name: dto.name,
-        email: dto.email,
-        imageId: dto.imageId,
-        introduction: dto.introduction,
-        hashedPassword: 'hashed',
-        imageUrl: null,
-        createdAt: now,
-        updatedAt: now,
-        // 以下の余計なフィールドを含めてモックする
-        extra: 'extra',
-      });
+      const userWithExtra: User & { extra: string } = Object.assign(
+        new User(),
+        {
+          ...(expected as User),
+          // 以下の余計なフィールドを含めてモックする
+          extra: 'extra',
+        },
+      );
+      service.signUp.mockResolvedValue(userWithExtra);
       const result = await controller.signUp(dto);
-      expect(result).toMatchObject(user);
+      expect(result).toMatchObject(expected);
       expect(result).toHaveProperty('extra', 'extra');
     });
 

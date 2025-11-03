@@ -49,9 +49,4 @@ export class User extends BaseEntity {
 
   @UpdateDateColumn({ name: 'updated_at', comment: '更新日時' })
   updatedAt: Date;
-
-  constructor(name: string) {
-    super();
-    this.name = name;
-  }
 }

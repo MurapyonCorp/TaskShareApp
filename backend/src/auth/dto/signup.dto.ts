@@ -5,7 +5,7 @@ import {
   MinLength,
   IsOptional,
 } from 'class-validator';
-import { Match } from '../../common/decorators/match.decorator';
+import { Match } from '../../common/decorators/match.decorator.js';
 
 export class SignupDto {
   @IsString()

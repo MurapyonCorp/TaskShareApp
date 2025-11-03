@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // ★ Jest/ts-jest が確実に NodeNext を使うように上書き
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+
+    // これを使いたいからこそ NodeNext が必須
+    "resolvePackageJsonExports": true,
+
+    // Jest の型
+    "types": ["jest", "node"],
+
+    // ts-jest では false の方が互換性が高い（ESMモック等で楽）
+    "isolatedModules": false
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}
