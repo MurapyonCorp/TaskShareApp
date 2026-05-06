@@ -4,6 +4,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity.js';
 import { Repository } from 'typeorm';
 import { SignupDto } from './dto/signup.dto.js';
+import { isPostgresError } from '../common/errors/postgres-error.js';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +27,7 @@ export class AuthService {
       await this.userRepo.save(user);
       return user;
     } catch (error) {
-      if (error.code === '23505') {
+      if (isPostgresError(error) && error.code === '23505') {
         throw new ForbiddenException(
           'このメールアドレスは既に登録されています',
         );
