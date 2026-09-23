@@ -44,6 +44,9 @@ export class User extends BaseEntity {
   })
   imageUrl!: string | null;
 
+  @Column('varchar', { name: 'google_id', nullable: true, unique: true })
+  googleId!: string | null;
+
   @CreateDateColumn({ name: 'created_at', comment: '作成日時' })
   createdAt!: Date;
 
